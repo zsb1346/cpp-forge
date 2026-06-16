@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState, useRef } from 'react'
 import { useStore } from '../store/useStore'
 import { chapters } from '../courses'
 import { TrophyIcon, StarIcon, TargetIcon, ResetIcon } from '../components/icons'
@@ -10,6 +10,10 @@ const LevelSelect: React.FC = () => {
   const getNodeStatus = useStore(s => s.getNodeStatus)
   const progress = useStore(s => s.progress)
   const resetAllProgress = useStore(s => s.resetAllProgress)
+  const debugUnlockLesson = useStore(s => s.debugUnlockLesson)
+
+  const [toast, setToast] = useState<string | null>(null)
+  const touchStartRef = useRef<{ x: number; y: number; id: string } | null>(null)
 
   const completedCount = Object.keys(progress.completedLessons).length
   const totalCount = courses.length
@@ -115,9 +119,31 @@ const LevelSelect: React.FC = () => {
                       key={course.meta.id}
                       onClick={() => handleStart(course.meta.id)}
                       disabled={locked}
+                      onTouchStart={(e) => {
+                        touchStartRef.current = {
+                          x: e.touches[0].clientX,
+                          y: e.touches[0].clientY,
+                          id: course.meta.id,
+                        }
+                      }}
+                      onTouchEnd={(e) => {
+                        const t = touchStartRef.current
+                        touchStartRef.current = null
+                        if (!t || t.id !== course.meta.id) return
+                        const dx = e.changedTouches[0].clientX - t.x
+                        const dy = e.changedTouches[0].clientY - t.y
+                        if (dx > 60 && Math.abs(dy) < 30) {
+                          const s = getNodeStatus(course.meta.id)
+                          if (s === 'locked') {
+                            debugUnlockLesson(course.meta.id)
+                            setToast(course.meta.title)
+                            setTimeout(() => setToast(null), 1400)
+                          }
+                        }
+                      }}
                       style={{ animationDelay: `${idx * 50}ms` }}
                       className={`group relative w-full flex items-center gap-4 pl-0 animate-rise text-left
-                        ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        ${locked ? 'cursor-not-allowed touch-pan-y' : 'cursor-pointer'}`}
                     >
                       {/* 节点圆点 */}
                       <span className={`relative z-10 flex-shrink-0 w-11 sm:w-14 h-11 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center
@@ -162,6 +188,11 @@ const LevelSelect: React.FC = () => {
           </div>
         ))}
       </main>
+      {toast && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-sage text-paper-raised px-5 py-3 rounded-2xl shadow-lift text-sm font-semibold animate-pop flex items-center gap-2">
+          <span>🔓</span> 已解锁：{toast}
+        </div>
+      )}
     </div>
   )
 }

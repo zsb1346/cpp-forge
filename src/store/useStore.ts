@@ -50,6 +50,8 @@ interface AppState {
   nextHint: () => void;
   getNodeStatus: (lessonId: string) => NodeStatus;
   resetAllProgress: () => void;
+  /** 调试用：右滑解锁某一课 */
+  debugUnlockLesson: (lessonId: string) => void;
 }
 
 const STORAGE_KEY = 'cpp-adventure-progress';
@@ -276,5 +278,24 @@ export const useStore = create<AppState>((set, get) => ({
     set({
       progress: { completedLessons: {}, currentLesson: null, currentBlock: 0 },
     });
+  },
+
+  /** 调试用：强制解锁某一课（标记为已完成） */
+  debugUnlockLesson: (lessonId: string) => {
+    const { progress } = get();
+    const completion: LessonCompletion = {
+      completedAt: new Date().toISOString(),
+      stars: 0,
+      perfect: false,
+    };
+    const updatedProgress: UserProgress = {
+      ...progress,
+      completedLessons: {
+        ...progress.completedLessons,
+        [lessonId]: completion,
+      },
+    };
+    saveProgress(updatedProgress);
+    set({ progress: updatedProgress });
   },
 }));
