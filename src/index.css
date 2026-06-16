@@ -1,0 +1,301 @@
+/* JetBrains Mono 字体：npm @fontsource 本地加载，替代 Google CDN */
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/* 数字字形：强制 0-9 使用 JetBrains Mono（unicode-range 标准 CSS 机制）
+   Fraunces 的数字过于装饰性，不适用于教学数字（关卡、分数等） */
+@font-face {
+  font-family: 'Numbers';
+  font-weight: 400;
+  src: url(/fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2');
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: 'Numbers';
+  font-weight: 500;
+  src: url(/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2');
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: 'Numbers';
+  font-weight: 600;
+  src: url(/fonts/jetbrains-mono-latin-600-normal.woff2) format('woff2');
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: 'Numbers';
+  font-weight: 700;
+  src: url(/fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2');
+  unicode-range: U+30-39;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =================================================================
+   Forge · 设计系统
+   暖调纸感浅色主题 + 深色代码"宝石岛"
+   ================================================================= */
+
+@layer base {
+  :root {
+    --paper: #f7f3ec;
+    --ink: #26211c;
+    --ember: #d9480f;
+    /* 纸张噪点纹理（极淡，营造质感而非平涂） */
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  }
+
+  html {
+    font-family: 'Numbers', 'Hanken Grotesk', 'Noto Sans SC', system-ui, sans-serif;
+    background-color: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* 全局纸张颗粒覆盖层 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: var(--grain);
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-feature-settings: 'liga' 0;
+  }
+
+  ::selection {
+    background: #f6d4c2;
+    color: #5a2206;
+  }
+
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #d3c9ba;
+    border-radius: 99px;
+    border: 3px solid var(--paper);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #bfb3a1; }
+
+  /* 深色区域内的滚动条 */
+  .scroll-dark::-webkit-scrollbar-thumb {
+    background: #4a4356;
+    border-color: #211d2b;
+  }
+}
+
+@layer components {
+  /* ---------- 按钮 ---------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold
+           transition-all duration-200 select-none
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  /* 主按钮：实心炭橙，带"按下"立体感 */
+  .btn-primary {
+    @apply btn px-6 py-3 rounded-2xl text-[15px] text-paper-raised
+           bg-ember shadow-ember
+           hover:bg-ember-soft hover:-translate-y-0.5
+           active:translate-y-0 active:scale-[0.98];
+  }
+
+  /* 次按钮：纸面描边 */
+  .btn-ghost {
+    @apply btn px-5 py-2.5 rounded-xl text-sm text-ink-soft
+           border border-paper-line bg-paper-raised
+           hover:border-ink-faint hover:text-ink hover:bg-paper
+           active:scale-[0.98];
+  }
+
+  /* 文本按钮 */
+  .btn-text {
+    @apply btn text-sm text-ink-faint hover:text-ember;
+  }
+
+  /* ---------- 卡片 / 容器 ---------- */
+  .surface {
+    @apply rounded-3xl border border-paper-line bg-paper-raised shadow-paper;
+  }
+
+  /* 一个 block 的承载卡片 */
+  .block-card {
+    @apply surface p-7 sm:p-9 animate-rise;
+  }
+
+  /* ---------- 标签（block 类型徽章）---------- */
+  .pill {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+           text-[11px] font-bold uppercase tracking-[0.12em];
+  }
+  .pill-ember { @apply pill bg-ember-tint text-ember-deep; }
+  .pill-sage  { @apply pill bg-sage-tint  text-sage; }
+  .pill-gold  { @apply pill bg-gold-tint  text-gold; }
+  .pill-ink   { @apply pill bg-paper-sunk text-ink-soft; }
+
+  /* ---------- 输入 ---------- */
+  .field {
+    @apply w-full px-4 py-3 rounded-none bg-paper-sunk border border-paper-line
+           text-ink font-mono text-sm shadow-inset
+           placeholder:text-ink-ghost
+           focus:outline-none focus:border-ember focus:bg-paper-raised
+           focus:ring-4 focus:ring-ember/10
+           transition-all duration-200;
+  }
+
+  /* ---------- 代码"宝石岛"：浅页面里的深色嵌入块 ---------- */
+  .gem {
+    @apply rounded-none bg-slate text-[#e7e2f0] shadow-gem
+           border border-slate-line overflow-hidden;
+  }
+  .gem-bar {
+    @apply flex items-center gap-1.5 px-4 py-2.5 border-b border-slate-line;
+  }
+  .gem-body {
+    @apply px-3 sm:px-5 py-3 sm:py-4 font-mono text-[13.5px] leading-relaxed overflow-x-auto scroll-dark;
+  }
+
+  /* 标题装饰下划线（衬线感） */
+  .deco-underline {
+    @apply relative inline-block;
+  }
+  .deco-underline::after {
+    content: '';
+    @apply absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-ember/70 origin-left;
+    animation: underline 0.6s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Numbers', 'Fraunces', 'Noto Serif SC', Georgia, serif; }
+
+  /* 衬线大标题的细节微调 */
+  .title-serif {
+    font-family: 'Numbers', 'Fraunces', 'Noto Serif SC', Georgia, serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+  }
+
+  .text-balance { text-wrap: balance; }
+
+  /* 锻造火光：径向暖色光晕 */
+  .forge-glow {
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(217,72,15,0.10), transparent 70%),
+      radial-gradient(40% 40% at 85% 30%, rgba(183,121,31,0.08), transparent 70%);
+  }
+
+  /* 阶梯延迟（页面载入 stagger） */
+  .delay-1 { animation-delay: 0.06s; }
+  .delay-2 { animation-delay: 0.12s; }
+  .delay-3 { animation-delay: 0.18s; }
+  .delay-4 { animation-delay: 0.24s; }
+  .delay-5 { animation-delay: 0.30s; }
+}
+
+/* =================================================================
+   代码语法高亮（深色宝石岛配色 — 暖调而非冷蓝）
+   ================================================================= */
+.tok-keyword  { color: #ff9e64; }              /* 关键字：暖橙 */
+.tok-type     { color: #7dcfb6; }              /* 类型：薄荷 */
+.tok-string   { color: #e0af68; }              /* 字符串：琥珀 */
+.tok-number   { color: #d6a4ff; }              /* 数字：淡紫 */
+.tok-comment  { color: #6b6580; font-style: italic; }
+.tok-function { color: #ffd866; }              /* 函数：金 */
+.tok-ue       { color: #82d2ff; }              /* UE 类型：天蓝 */
+.tok-punct    { color: #a59ec0; }              /* 标点 */
+.tok-plain    { color: #e7e2f0; }
+
+/* =================================================================
+   动画关键帧
+   ================================================================= */
+
+/* 淡入上滑 — RevealText 使用 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 水平抖动 — ShakeOnError 使用 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* 尊重系统减少动效设置 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =================================================================
+   Markdown 渲染（教学区）
+   ================================================================= */
+.markdown-body {
+  line-height: 1.65;
+}
+.markdown-body p {
+  margin-bottom: 0.6em;
+}
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+.markdown-body strong {
+  font-weight: 800;
+  color: var(--ember);
+}
+.markdown-body code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.82em;
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+  background: #e7e2f0;
+  color: #211d2b;
+}
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.4em;
+  margin-bottom: 0.5em;
+}
+.markdown-body li {
+  margin-bottom: 0.15em;
+}
+.markdown-body a {
+  color: #d9480f;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-body a:hover {
+  color: #b83a0a;
+}
+
