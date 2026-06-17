@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import type { ConceptCardsBlock as ConceptCardsBlockType } from '../types/protocol'
 import { useStore } from '../store/useStore'
 import { InlineCode } from './SyntaxHighlighter'
+import MarkdownBlock from './MarkdownBlock'
+import { ArrowRightIcon, StarIcon } from './icons'
 
 interface Props {
   block: ConceptCardsBlockType;
@@ -39,7 +41,7 @@ const ConceptCardsBlock: React.FC<Props> = ({ block }) => {
         </span>
       </div>
 
-      <p className="text-ink-soft text-[15px] mb-6">{block.instruction}</p>
+      <MarkdownBlock text={block.instruction} className="text-ink-soft text-[15px] mb-6" />
 
       <div className="grid sm:grid-cols-2 gap-3.5">
         {block.cards.map((card, i) => {
@@ -67,7 +69,7 @@ const ConceptCardsBlock: React.FC<Props> = ({ block }) => {
 
               {open ? (
                 <div className="animate-fade-in">
-                  <p className="text-sm text-ink leading-relaxed">{card.meaning}</p>
+                  <MarkdownBlock text={card.meaning} className="text-sm text-ink leading-relaxed" />
                   {card.example && (
                     <div className="mt-2.5 font-mono text-[12.5px] text-ink-soft bg-paper-raised border border-paper-line rounded-lg px-2.5 py-1.5">
                       {card.example}
@@ -76,7 +78,7 @@ const ConceptCardsBlock: React.FC<Props> = ({ block }) => {
                 </div>
               ) : (
                 <p className="text-xs text-ink-faint italic group-hover:text-gold transition-colors">
-                  点击翻面 →
+                   点击翻面 <ArrowRightIcon size={12} />
                 </p>
               )}
             </button>
@@ -86,7 +88,7 @@ const ConceptCardsBlock: React.FC<Props> = ({ block }) => {
 
       {allSeen && (
         <p className="mt-6 text-sm text-sage font-medium flex items-center gap-2 animate-fade-in">
-          <span>✦</span> 这一组概念你已经全部认过了
+          <span><StarIcon size={14} filled className="text-sage" /></span> 这一组概念你已经全部认过了
         </p>
       )}
     </div>

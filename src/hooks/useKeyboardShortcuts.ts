@@ -44,10 +44,15 @@ export function useKeyboardShortcuts() {
           break
         }
 
-        case 'ArrowRight':
+        case 'ArrowRight': {
           e.preventDefault()
-          state.nextBlock()
+          if (!state.currentLesson) break
+          const block = state.currentLesson.blocks[state.currentBlockIndex]
+          const passive = block?.type === 'exposition'
+          const canAdvance = state.blockCompleted || passive
+          if (canAdvance) state.nextBlock()
           break
+        }
 
         case 'ArrowLeft':
           e.preventDefault()

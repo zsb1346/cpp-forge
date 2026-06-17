@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { Lesson, UserProgress, Block, LessonCompletion, NodeStatus } from '../types/protocol'
+import type { Lesson, UserProgress, Block, LessonCompletion, NodeStatus, Subject } from '../types/protocol'
+import { defaultKnowledgeSystemId } from '../knowledge/systems'
 
 interface AppState {
   // 页面导航
@@ -9,6 +10,7 @@ interface AppState {
   courses: Lesson[];
   currentLesson: Lesson | null;
   currentBlockIndex: number;
+  selectedSubject: Subject;
 
   // 用户进度
   progress: UserProgress;
@@ -33,6 +35,7 @@ interface AppState {
   // Actions
   setScreen: (screen: 'start' | 'level-select' | 'lesson') => void;
   loadCourses: (courses: Lesson[]) => void;
+  setSelectedSubject: (subject: Subject) => void;
   startLesson: (lesson: Lesson) => void;
   /** 断点续学：从 progress.currentLesson 恢复上一课 */
   resumeLesson: () => void;
@@ -56,6 +59,7 @@ interface AppState {
 
 const STORAGE_KEY = 'cpp-adventure-progress';
 const FONT_SIZE_KEY = 'forge-code-font-size';
+const SUBJECT_KEY = 'forge-selected-subject';
 
 function loadFontSize(): number {
   try {
@@ -67,6 +71,18 @@ function loadFontSize(): number {
 
 function saveFontSize(size: number) {
   try { localStorage.setItem(FONT_SIZE_KEY, JSON.stringify(size)); } catch { /* ignore */ }
+}
+
+function loadSelectedSubject(): Subject {
+  try {
+    const saved = localStorage.getItem(SUBJECT_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return defaultKnowledgeSystemId;
+}
+
+function saveSelectedSubject(subject: Subject) {
+  try { localStorage.setItem(SUBJECT_KEY, JSON.stringify(subject)); } catch { /* ignore */ }
 }
 
 function loadProgress(): UserProgress {
@@ -83,11 +99,18 @@ function saveProgress(progress: UserProgress) {
   } catch { /* ignore */ }
 }
 
+function withCurrentBlock(progress: UserProgress, index: number): UserProgress {
+  const updated = { ...progress, currentBlock: index };
+  saveProgress(updated);
+  return updated;
+}
+
 export const useStore = create<AppState>((set, get) => ({
   screen: 'start',
   courses: [],
   currentLesson: null,
   currentBlockIndex: 0,
+  selectedSubject: loadSelectedSubject(),
   progress: loadProgress(),
 
   blockFeedback: null,
@@ -110,6 +133,11 @@ export const useStore = create<AppState>((set, get) => ({
   setScreen: (screen) => set({ screen }),
 
   loadCourses: (courses) => set({ courses }),
+
+  setSelectedSubject: (subject) => {
+    saveSelectedSubject(subject);
+    set({ selectedSubject: subject });
+  },
 
   startLesson: (lesson) => {
     const updatedProgress = {
@@ -157,7 +185,7 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   jumpToBlock: (index) => {
-    const { currentLesson } = get();
+    const { currentLesson, progress } = get();
     if (!currentLesson || index < 0 || index >= currentLesson.blocks.length) return;
     set({
       currentBlockIndex: index,
@@ -165,11 +193,12 @@ export const useStore = create<AppState>((set, get) => ({
       blockCompleted: false,
       showHint: false,
       hintIndex: 0,
+      progress: withCurrentBlock(progress, index),
     });
   },
 
   nextBlock: () => {
-    const { currentLesson, currentBlockIndex } = get();
+    const { currentLesson, currentBlockIndex, progress } = get();
     if (!currentLesson) return;
     const nextIndex = currentBlockIndex + 1;
     if (nextIndex < currentLesson.blocks.length) {
@@ -179,19 +208,22 @@ export const useStore = create<AppState>((set, get) => ({
         blockCompleted: false,
         showHint: false,
         hintIndex: 0,
+        progress: withCurrentBlock(progress, nextIndex),
       });
     }
   },
 
   prevBlock: () => {
-    const { currentBlockIndex } = get();
+    const { currentBlockIndex, progress } = get();
     if (currentBlockIndex > 0) {
+      const prevIndex = currentBlockIndex - 1;
       set({
-        currentBlockIndex: currentBlockIndex - 1,
+        currentBlockIndex: prevIndex,
         blockFeedback: null,
         blockCompleted: false,
         showHint: false,
         hintIndex: 0,
+        progress: withCurrentBlock(progress, prevIndex),
       });
     }
   },

@@ -4,7 +4,9 @@ import { useStore } from '../store/useStore'
 import SyntaxHighlighter from './SyntaxHighlighter'
 import { preloader, getRunner } from '../runner'
 import type { RunResult } from '../runner'
-import { PlayIcon, CheckIcon } from './icons'
+import { PlayIcon, CheckIcon, IncorrectIcon, WarningIcon, XCircleIcon } from './icons'
+import MarkdownBlock from './MarkdownBlock'
+import { compareOutput } from '../lib/compareOutput'
 
 interface Props {
   block: CodeRunnerBlockType
@@ -75,28 +77,15 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
   // 输出比对
   const outputMatch = useCallback((): boolean => {
     if (!result || !block.expectedOutput) return true
-    const actual = result.stdout
-    const expected = block.expectedOutput
-
-    switch (comparison) {
-      case 'exact':    return actual === expected
-      case 'trimmed':  return actual.trim() === expected.trim()
-      case 'contains': return actual.includes(expected)
-      case 'regex': {
-        try { return new RegExp(expected).test(actual) }
-        catch { return false }
-      }
-      case 'none':
-      default:         return true
-    }
+    return compareOutput(result.stdout, block.expectedOutput, comparison)
   }, [result, block.expectedOutput, comparison])
 
   // 比对描述文案
   const comparisonLabel = useCallback((): string | null => {
     if (!block.expectedOutput) return null
     if (!result) return null
-    if (outputMatch()) return '✓ 输出正确'
-    return '✕ 输出与预期不符'
+    if (outputMatch()) return '输出正确'
+    return '输出与预期不符'
   }, [block.expectedOutput, result, outputMatch])
 
   /** 实际执行运行 */
@@ -123,7 +112,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
 
       // 如果有 expectedOutput 且匹配成功，标记完成
       if (block.expectedOutput && block.comparison !== 'none') {
-        if (res.success && outputMatch()) {
+        if (res.success && compareOutput(res.stdout, block.expectedOutput, comparison)) {
           setTimeout(() => onComplete(), 800)
         }
       } else if (res.success) {
@@ -140,7 +129,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
       })
       setRunState('done')
     }
-  }, [code, language, block.expectedOutput, block.comparison, onComplete])
+  }, [code, language, block.expectedOutput, block.comparison, comparison, onComplete])
 
   /** 点击"运行"：检测是否需要输入，需要则弹窗 */
   const handleRun = useCallback(() => {
@@ -222,7 +211,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
   return (
     <div className="block-card">
       <span className="pill-gold mb-5">运行</span>
-      <p className="text-ink text-[15px] mb-5 leading-relaxed">{block.instruction}</p>
+      <MarkdownBlock text={block.instruction} className="text-ink text-[15px] mb-5 leading-relaxed" />
 
       {/* 代码展示 / 编辑区 */}
       {editable ? (
@@ -302,7 +291,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
             onClick={() => setOutputExpanded(v => !v)}
             className="flex items-center gap-2 text-sm font-semibold text-ink mb-2"
           >
-            <span className={`transition-transform ${outputExpanded ? 'rotate-90' : ''}`}>▶</span>
+                <span className={`transition-transform ${outputExpanded ? 'rotate-90' : ''}`}><PlayIcon size={10} /></span>
             输出
           </button>
 
@@ -323,7 +312,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
                     {result.stderr && !result.success ? (
                       <span className="tok-comment">{'\n'}{result.stderr}</span>
                     ) : null}
-                    {result.timedOut && <span className="text-[#ff8585]">{'\n'}⚠ 执行超时</span>}
+                    {result.timedOut && <span className="text-[#ff8585]">{'\n'}<WarningIcon size={14} /> 执行超时</span>}
                   </code>
                 </pre>
               </div>
@@ -343,7 +332,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
                   <p className={`text-sm font-semibold flex items-center gap-2 ${
                     outputMatch() ? 'text-sage' : 'text-clay'
                   }`}>
-                    {outputMatch() ? <CheckIcon size={18} /> : <span>✕</span>}
+                    {outputMatch() ? <CheckIcon size={18} /> : <IncorrectIcon size={18} />}
                     {comparisonLabel()}
                   </p>
                   {!outputMatch() && (
@@ -376,7 +365,7 @@ const CodeRunnerBlock: React.FC<Props> = ({ block, onComplete }) => {
                 onClick={handleInputCancel}
                 className="w-7 h-7 flex items-center justify-center rounded-full text-ink-faint hover:text-ink hover:bg-paper-sunk transition-colors"
               >
-                ✕
+                <XCircleIcon size={16} />
               </button>
             </div>
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type { FillInBlock as FillInBlockType } from '../types/protocol'
 import { useStore } from '../store/useStore'
+import MarkdownBlock from './MarkdownBlock'
+import { LightbulbIcon, CheckIcon, IncorrectIcon } from './icons'
 
 interface Props {
   block: FillInBlockType;
@@ -85,7 +87,7 @@ const FillInBlock: React.FC<Props> = ({ block }) => {
   return (
     <div className="block-card">
       <span className="pill-sage mb-5">填空</span>
-      <p className="text-ink text-[15px] mb-5 leading-relaxed">{block.prompt}</p>
+      <MarkdownBlock text={block.prompt} className="text-ink text-[15px] mb-5 leading-relaxed" />
 
       {/* 代码宝石岛 + 内嵌输入框 */}
       <div className="gem mb-5">
@@ -104,7 +106,7 @@ const FillInBlock: React.FC<Props> = ({ block }) => {
       {block.hints && block.hints.length > 0 && (
         <div className="mb-5">
           <button onClick={() => setShowHints(v => !v)} className="btn-text">
-            <span className="text-gold">💡</span>
+            <LightbulbIcon size={16} className="text-gold" />
             {showHints ? '收起提示' : '需要提示？'}
           </button>
           {showHints && (
@@ -125,12 +127,12 @@ const FillInBlock: React.FC<Props> = ({ block }) => {
           ${isCorrect ? 'bg-sage-tint border-sage/30' : 'bg-clay-tint border-clay/30'}`}>
           {isCorrect ? (
             <p className="text-sm text-sage font-medium flex items-center gap-2">
-              <span>✓</span> 全部填对了
+              <CheckIcon size={16} /> 全部填对了
             </p>
           ) : (
             <div>
               <p className="text-sm text-clay font-medium flex items-center gap-2 mb-2">
-                <span>✕</span> 有空位还不对
+                <IncorrectIcon size={16} /> 有空位还不对
               </p>
               <div className="space-y-1">
                 {block.answers.map((ans, i) => (

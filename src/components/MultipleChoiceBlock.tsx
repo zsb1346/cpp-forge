@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { MultipleChoiceBlock as MultipleChoiceBlockType } from '../types/protocol'
 import { useStore } from '../store/useStore'
+import { CheckIcon, IncorrectIcon } from './icons'
 
 interface Props {
   block: MultipleChoiceBlockType;
@@ -87,7 +88,7 @@ const MultipleChoiceBlock: React.FC<Props> = ({ block }) => {
             >
               <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold
                 border-2 transition-all ${isSingle ? 'rounded-full' : 'rounded-md'} ${badge}`}>
-                {showResult ? (opt.correct ? '✓' : sel ? '✕' : '') : (sel ? '✓' : '')}
+                {showResult ? (opt.correct ? <CheckIcon size={12} /> : sel ? <IncorrectIcon size={12} /> : '') : (sel ? <CheckIcon size={12} /> : '')}
               </span>
               <span className={`text-[15px] font-mono ${showResult && sel && !opt.correct ? 'text-clay' : 'text-ink'}`}>
                 {opt.text}
@@ -103,13 +104,13 @@ const MultipleChoiceBlock: React.FC<Props> = ({ block }) => {
           ${isCorrect ? 'bg-sage-tint border-sage/30' : 'bg-clay-tint border-clay/30'}`}>
           {isCorrect ? (
             <p className="text-sm text-sage font-medium flex items-center gap-2">
-              <span>✓</span>
+              <CheckIcon size={16} />
               <span>答对了{chosenExplanation ? `—— ${chosenExplanation}` : '！'}</span>
             </p>
           ) : (
             <div>
               <p className="text-sm text-clay font-medium flex items-center gap-2 mb-1.5">
-                <span>✕</span> 再想想
+                <IncorrectIcon size={16} /> 再想想
               </p>
               {correctIdx.map(idx => (
                 <p key={idx} className="text-[13px] text-ink-soft mt-1">

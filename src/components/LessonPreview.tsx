@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import type { Lesson } from '../types/protocol'
 import { CheckCircle } from '@phosphor-icons/react'
+import { ArrowRightIcon } from './icons'
+import { getLessonContentProfile, CONTENT_KIND_META } from '../lib/contentTaxonomy'
 
 interface Props {
   lesson: Lesson;
@@ -21,14 +23,24 @@ const LessonPreview: React.FC<Props> = ({ lesson, onStart }) => {
   useEffect(() => { setMounted(true) }, [])
 
   const blockSummary = lesson.blocks.map(b => BLOCK_LABELS[b.type] ?? b.type)
+  const profile = getLessonContentProfile(lesson)
+  const kindMeta = CONTENT_KIND_META[profile.kind]
+  const isPracticeOrReview = profile.kind === 'practice' || profile.kind === 'review' || profile.kind === 'challenge'
 
   return (
     <div className="flex flex-col items-center text-center py-8 px-4">
-      {/* 章节编号 */}
-      <p className={`text-xs font-bold uppercase tracking-[0.3em] text-ember mb-4
-        ${mounted ? 'animate-rise' : 'opacity-0'}`}>
-        第 {lesson.meta.chapter} 关
-      </p>
+      {/* 章节编号 + 关卡类型徽章 */}
+      <div className="flex items-center gap-3 mb-4">
+        <p className={`text-xs font-bold uppercase tracking-[0.3em] text-ember
+          ${mounted ? 'animate-rise' : 'opacity-0'}`}>
+          第 {lesson.meta.chapter} 关
+        </p>
+        {isPracticeOrReview && kindMeta && (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${kindMeta.badgeClass} animate-pop`}>
+            {kindMeta.label}
+          </span>
+        )}
+      </div>
 
       {/* 标题 */}
       <h1 className={`title-serif text-4xl sm:text-5xl font-medium text-ink leading-[1.1] mb-3
@@ -92,7 +104,7 @@ const LessonPreview: React.FC<Props> = ({ lesson, onStart }) => {
         onClick={onStart}
         className={`btn-primary text-base px-10 py-4 ${mounted ? 'animate-pop delay-5' : 'opacity-0'}`}
       >
-        开始学习 <span className="text-lg">→</span>
+        开始学习 <ArrowRightIcon size={18} />
       </button>
     </div>
   )

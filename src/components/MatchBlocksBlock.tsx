@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import type { MatchBlocksBlock as MatchBlocksBlockType } from '../types/protocol'
 import { useStore } from '../store/useStore'
+import MarkdownBlock from './MarkdownBlock'
+import { CheckIcon, IncorrectIcon } from './icons'
 
 interface Props {
   block: MatchBlocksBlockType;
@@ -58,7 +60,7 @@ const MatchBlocksBlock: React.FC<Props> = ({ block }) => {
   return (
     <div className="block-card">
       <span className="pill-ember mb-5">拼装</span>
-      <p className="text-ink text-[15px] mb-6 leading-relaxed">{block.instruction}</p>
+      <MarkdownBlock text={block.instruction} className="text-ink text-[15px] mb-6 leading-relaxed" />
 
       {/* 槽位区：组装成一行代码 */}
       <p className="text-[11px] text-ink-faint font-bold uppercase tracking-[0.14em] mb-2.5">
@@ -114,12 +116,12 @@ const MatchBlocksBlock: React.FC<Props> = ({ block }) => {
           <button onClick={submit} disabled={!filled} className="btn-primary">检查顺序</button>
         ) : isCorrect ? (
           <p className="text-sm font-semibold text-sage flex items-center gap-2">
-            <span className="text-base">✓</span> 语法顺序正确
+            <CheckIcon size={16} /> 语法顺序正确
           </p>
         ) : (
           <>
             <p className="text-sm text-clay flex items-center gap-2">
-              <span>✕</span> 顺序不对
+              <IncorrectIcon size={16} /> 顺序不对
             </p>
             <button onClick={seed} className="btn-ghost">重新排列</button>
           </>

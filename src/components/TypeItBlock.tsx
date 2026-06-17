@@ -3,6 +3,8 @@ import type { TypeItBlock as TypeItBlockType } from '../types/protocol'
 import { useStore } from '../store/useStore'
 import SyntaxHighlighter from './SyntaxHighlighter'
 import CodeCompletion, { extractTokens, getCurrentWord, filterCompletions } from './CodeCompletion'
+import MarkdownBlock from './MarkdownBlock'
+import { LightbulbIcon, CheckIcon, IncorrectIcon } from './icons'
 
 interface Props {
   block: TypeItBlockType;
@@ -134,7 +136,7 @@ const TypeItBlock: React.FC<Props> = ({ block }) => {
   return (
     <div className="block-card">
       <span className="pill-ember mb-5">跟着敲</span>
-      <p className="text-ink text-[15px] mb-5 leading-relaxed">{block.instruction}</p>
+      <MarkdownBlock text={block.instruction} className="text-ink text-[15px] mb-5 leading-relaxed" />
 
       {/* 范本（深色宝石岛，带逐字着色） */}
       <SyntaxHighlighter code={block.code} filename="范本" charMatch={done ? undefined : charMatch} zoomable />
@@ -153,7 +155,7 @@ const TypeItBlock: React.FC<Props> = ({ block }) => {
                   : 'text-ink-ghost hover:text-ink-faint'}`}
               title="代码补全"
             >
-              Tab{codeCompletionEnabled ? ' ✓' : ''}
+              Tab{codeCompletionEnabled ? <CheckIcon size={12} /> : ''}
             </span>
             <span className="text-paper-line mx-0.5 select-none">|</span>
             <button
@@ -210,13 +212,13 @@ const TypeItBlock: React.FC<Props> = ({ block }) => {
       {/* 反馈 */}
       {done && (
         <p className="mt-4 text-sm font-semibold text-sage flex items-center gap-2 animate-fade-in">
-          <span className="text-base">✓</span> 一字不差，漂亮
+          <CheckIcon size={16} /> 一字不差，漂亮
         </p>
       )}
       {blockFeedback === 'incorrect' && (
         <div className="mt-4 animate-fade-in">
           <p className="text-sm text-clay flex items-center gap-2">
-            <span>✕</span> 还有些出入，对照范本再看看
+            <IncorrectIcon size={16} /> 还有些出入，对照范本再看看
           </p>
           {attempts >= 2 && !revealed && (
             <button onClick={reveal} className="mt-2 text-xs text-ink-faint hover:text-ember underline underline-offset-2">
@@ -230,7 +232,7 @@ const TypeItBlock: React.FC<Props> = ({ block }) => {
       {block.hints.length > 0 && (
         <div className="mt-5">
           <button onClick={() => setShowHints(v => !v)} className="btn-text">
-            <span className="text-gold">💡</span>
+            <LightbulbIcon size={16} className="text-gold" />
             {showHints ? '收起提示' : '需要提示？'}
           </button>
           {showHints && (
@@ -248,7 +250,7 @@ const TypeItBlock: React.FC<Props> = ({ block }) => {
       {/* 操作 */}
       <div className="flex items-center gap-3 mt-6">
         <button onClick={submit} disabled={!input.trim() || done} className="btn-primary">
-          {done ? '✓ 已通过' : '检查答案'}
+          {done ? <><CheckIcon size={14} /> 已通过</> : '检查答案'}
         </button>
         <span className="text-xs text-ink-ghost font-mono">Ctrl + Enter</span>
       </div>

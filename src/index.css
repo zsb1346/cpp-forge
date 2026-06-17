@@ -42,9 +42,15 @@
 
 @layer base {
   :root {
-    --paper: #f7f3ec;
-    --ink: #26211c;
-    --ember: #d9480f;
+    --paper: #f8f7f4;
+    --paper-warm: #fbfaf7;
+    --paper-cool: #f1efea;
+    --ink: #1f1f1d;
+    --ember: #c94a16;
+    --copper: #c94a16;
+    --brass: #a66b1f;
+    --atelier-shadow: 0 1px 2px rgba(31,31,29,0.04), 0 18px 48px -32px rgba(31,31,29,0.22);
+    --atelier-line: linear-gradient(90deg, transparent, rgba(201,74,22,0.18), transparent);
     /* 纸张噪点纹理（极淡，营造质感而非平涂） */
     --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
   }
@@ -62,6 +68,23 @@
     margin: 0;
     min-height: 100vh;
     position: relative;
+    background:
+      radial-gradient(760px 460px at 50% -16%, rgba(201,74,22,0.055), transparent 64%),
+      linear-gradient(180deg, var(--paper-warm), var(--paper) 54%, var(--paper-cool));
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45), transparent 22%);
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
   }
 
   /* 全局纸张颗粒覆盖层 */
@@ -70,7 +93,7 @@
     position: fixed;
     inset: 0;
     background-image: var(--grain);
-    opacity: 0.025;
+    opacity: 0.012;
     pointer-events: none;
     z-index: 9999;
     mix-blend-mode: multiply;
@@ -113,17 +136,19 @@
   /* 主按钮：实心炭橙，带"按下"立体感 */
   .btn-primary {
     @apply btn px-6 py-3 rounded-2xl text-[15px] text-paper-raised
-           bg-ember shadow-ember
+           bg-ember shadow-ember border border-ember-deep/20
            hover:bg-ember-soft hover:-translate-y-0.5
            active:translate-y-0 active:scale-[0.98];
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 48%), linear-gradient(135deg, #d95a23, #b93f12);
   }
 
   /* 次按钮：纸面描边 */
   .btn-ghost {
     @apply btn px-5 py-2.5 rounded-xl text-sm text-ink-soft
-           border border-paper-line bg-paper-raised
-           hover:border-ink-faint hover:text-ink hover:bg-paper
+           border border-paper-line bg-paper-raised/85 backdrop-blur-sm
+           hover:border-ember/40 hover:text-ink hover:bg-paper-raised
            active:scale-[0.98];
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 8px 20px -16px rgba(38,33,28,0.35);
   }
 
   /* 文本按钮 */
@@ -133,12 +158,26 @@
 
   /* ---------- 卡片 / 容器 ---------- */
   .surface {
-    @apply rounded-3xl border border-paper-line bg-paper-raised shadow-paper;
+    @apply relative overflow-hidden rounded-3xl border border-paper-line bg-paper-raised shadow-paper backdrop-blur-xl;
+    box-shadow: var(--atelier-shadow);
+  }
+
+  .surface::before,
+  .block-card::before {
+    content: '';
+    @apply absolute left-8 right-8 top-0 h-px opacity-35;
+    background: var(--atelier-line);
   }
 
   /* 一个 block 的承载卡片 */
   .block-card {
-    @apply surface p-7 sm:p-9 animate-rise;
+    @apply surface relative p-7 sm:p-9 animate-rise overflow-hidden;
+  }
+
+  .block-card::after {
+    content: '';
+    @apply absolute -right-28 -top-28 w-56 h-56 rounded-full pointer-events-none opacity-60;
+    background: radial-gradient(circle, rgba(201,74,22,0.035), transparent 70%);
   }
 
   /* ---------- 标签（block 类型徽章）---------- */
@@ -163,8 +202,11 @@
 
   /* ---------- 代码"宝石岛"：浅页面里的深色嵌入块 ---------- */
   .gem {
-    @apply rounded-none bg-slate text-[#e7e2f0] shadow-gem
+    @apply rounded-2xl bg-slate text-[#e7e2f0] shadow-gem
            border border-slate-line overflow-hidden;
+    background-image:
+      radial-gradient(circle at 12% 0%, rgba(255,158,100,0.12), transparent 28%),
+      linear-gradient(180deg, #2b2636, #17131f);
   }
   .gem-bar {
     @apply flex items-center gap-1.5 px-4 py-2.5 border-b border-slate-line;
@@ -179,8 +221,133 @@
   }
   .deco-underline::after {
     content: '';
-    @apply absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-ember/70 origin-left;
+    @apply absolute left-0 -bottom-1 h-[2px] w-full rounded-full bg-ember/45 origin-left;
     animation: underline 0.6s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  }
+
+  /* ---------- 教学工作台：代码参考 + 微 checkpoint ---------- */
+  .lesson-workbench {
+    background-image:
+      linear-gradient(135deg, rgba(201,74,22,0.035), transparent 42%),
+      radial-gradient(circle at 96% 0%, rgba(166,107,31,0.055), transparent 22rem);
+  }
+
+  .lesson-workbench-grid {
+    @apply animate-rise;
+  }
+
+  .reference-rail {
+    @apply min-w-0;
+  }
+
+  .reference-card {
+    @apply surface p-4 sm:p-5 overflow-hidden;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,253,0.96), rgba(248,247,244,0.9)),
+      radial-gradient(circle at 100% 0%, rgba(201,74,22,0.045), transparent 15rem);
+  }
+
+  .checkpoint-meter {
+    @apply rounded-2xl border border-paper-line bg-paper-sunk px-4 py-3 shadow-inset;
+  }
+
+  .option-card {
+    @apply w-full min-h-[56px] flex items-center gap-3.5 px-4 py-3.5 rounded-2xl border-2 text-left
+           transition-all duration-200 active:scale-[0.99] disabled:active:scale-100;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.72) inset, 0 12px 28px -24px rgba(38,33,28,0.4);
+  }
+
+  .option-card:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+
+  .option-stamp {
+    @apply w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-xl border-2
+           text-xs font-mono font-bold transition-all;
+  }
+
+  .output-card {
+    @apply rounded-2xl border border-paper-line bg-paper-sunk p-4 font-mono text-sm shadow-inset;
+  }
+
+  .state-chip {
+    @apply min-h-[52px] flex items-center gap-2 rounded-2xl border-2 border-paper-line
+           bg-paper-sunk px-4 py-3 transition-all duration-200 shadow-inset;
+  }
+
+  .state-chip-correct {
+    @apply border-sage/50 bg-sage-tint;
+  }
+
+  .state-chip-wrong {
+    @apply border-clay/50 bg-clay-tint;
+  }
+
+  .trace-row {
+    @apply flex gap-3 px-4 py-2 border-b border-paper-line/60 transition-colors;
+  }
+
+  .trace-row-active {
+    @apply bg-ember-tint shadow-inset;
+  }
+
+  .repair-card {
+    @apply grid sm:grid-cols-[88px_1fr_1.4fr] gap-2 rounded-2xl border border-paper-line
+           bg-paper-sunk px-4 py-3 text-[13px] leading-relaxed;
+  }
+
+  .compare-grid {
+    @apply grid gap-3 lg:grid-cols-2;
+  }
+
+  .compare-card {
+    @apply rounded-3xl border-2 border-paper-line bg-paper-sunk p-3 sm:p-4 text-left
+           transition-all duration-200 hover:border-ink-faint hover:bg-paper active:scale-[0.99];
+  }
+
+  .compare-card-selected {
+    @apply border-ember bg-ember-tint shadow-paper;
+  }
+
+  .compare-card-correct {
+    @apply border-sage/50 bg-sage-tint;
+  }
+
+  .compare-card-wrong {
+    @apply border-clay/50 bg-clay-tint;
+  }
+
+  .misconception-note {
+    @apply rounded-2xl border px-4 py-3;
+  }
+
+  .hint-tray {
+    @apply mt-5;
+  }
+
+  .hub-preview {
+    background-image:
+      linear-gradient(135deg, rgba(201,74,22,0.045), transparent 48%),
+      radial-gradient(circle at 92% 0%, rgba(166,107,31,0.075), transparent 18rem);
+  }
+
+  .hub-card {
+    @apply min-h-[156px] flex flex-col items-start gap-1.5 rounded-3xl border px-4 py-4 text-left
+           transition-all duration-200 shadow-paper active:scale-[0.99] relative overflow-hidden;
+  }
+
+  .hub-card::after {
+    content: '';
+    @apply absolute -right-10 -bottom-12 w-28 h-28 rounded-full opacity-50 pointer-events-none;
+    background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+  }
+
+  .memory-box {
+    @apply rounded-2xl border border-paper-line bg-paper-sunk px-4 py-3 shadow-inset;
+  }
+
+  .state-timeline {
+    @apply rounded-3xl border border-paper-line bg-paper-raised p-4 shadow-paper;
   }
 }
 
@@ -199,8 +366,18 @@
   /* 锻造火光：径向暖色光晕 */
   .forge-glow {
     background:
-      radial-gradient(60% 50% at 50% 0%, rgba(217,72,15,0.10), transparent 70%),
-      radial-gradient(40% 40% at 85% 30%, rgba(183,121,31,0.08), transparent 70%);
+      radial-gradient(72% 54% at 50% -8%, rgba(201,74,22,0.075), transparent 72%),
+      radial-gradient(38% 34% at 88% 18%, rgba(166,107,31,0.055), transparent 72%);
+  }
+
+  .atelier-shell {
+    background:
+      radial-gradient(680px 380px at 50% -14%, rgba(201,74,22,0.052), transparent 66%);
+  }
+
+  .copper-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(31,31,29,0.10), transparent);
   }
 
   /* 阶梯延迟（页面载入 stagger） */
@@ -273,6 +450,12 @@
 .markdown-body strong {
   font-weight: 800;
   color: var(--ember);
+}
+.markdown-body mark {
+  background: #fbe9df;   /* ember-tint：浅暖橙底色，像 WPS 突出显示 */
+  color: #26211c;         /* ink：深色文字保证可读 */
+  padding: 0 0.2em;
+  border-radius: 3px;
 }
 .markdown-body code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;

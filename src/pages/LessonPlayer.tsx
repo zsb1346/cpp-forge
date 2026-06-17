@@ -1,8 +1,10 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react'
 import { useStore } from '../store/useStore'
 import BlockRenderer from '../components/BlockRenderer'
+import TeachingLayout from '../components/TeachingLayout'
 import LessonPreview from '../components/LessonPreview'
-import { KeyboardIcon, CheckIcon } from '../components/icons'
+import { KeyboardIcon, CheckIcon, ArrowLeftIcon, ArrowRightIcon } from '../components/icons'
+import type { Block } from '../types/protocol'
 
 const BLOCK_LABELS: Record<string, string> = {
   exposition: '讲解',
@@ -12,7 +14,14 @@ const BLOCK_LABELS: Record<string, string> = {
   'match-blocks': '拼装',
   'fill-in': '填空',
   'code-runner': '运行',
+  'predict-output': '猜输出',
+  'trace-state': '走读',
+  'fix-code': '修代码',
+  'choose-next-line': '选下一行',
+  'compare-snippets': '对比',
 }
+
+const isPassiveBlock = (block?: Block) => block?.type === 'exposition'
 
 const LessonPlayer: React.FC = () => {
   const currentLesson = useStore(s => s.currentLesson)
@@ -59,11 +68,11 @@ const LessonPlayer: React.FC = () => {
   // 预览模式：展示学习目标
   if (showPreview) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="sticky top-0 z-20 bg-paper/80 backdrop-blur-md border-b border-paper-line">
+      <div className="min-h-screen flex flex-col atelier-shell">
+        <header className="sticky top-0 z-20 bg-paper/72 backdrop-blur-md border-b border-paper-line">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center">
             <button onClick={() => setScreen('level-select')} className="btn-text font-medium">
-              <span className="text-base">←</span> <span className="hidden sm:inline">退出</span>
+              <ArrowLeftIcon size={16} /> <span className="hidden sm:inline">退出</span>
             </button>
           </div>
         </header>
@@ -81,7 +90,7 @@ const LessonPlayer: React.FC = () => {
   const total = currentLesson.blocks.length
   const isFirst = currentBlockIndex === 0
   const isLast = currentBlockIndex === total - 1
-  const passive = block?.type === 'exposition'
+  const passive = isPassiveBlock(block)
   const canAdvance = blockCompleted || passive
   const curType = block ? BLOCK_LABELS[block.type] ?? block.type : ''
 
@@ -91,12 +100,12 @@ const LessonPlayer: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col atelier-shell">
       {/* 顶栏 + 进度 */}
-      <header className="sticky top-0 z-20 bg-paper/80 backdrop-blur-md border-b border-paper-line">
+      <header className="sticky top-0 z-20 bg-paper/72 backdrop-blur-md border-b border-paper-line">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
           <button onClick={() => setScreen('level-select')} className="btn-text font-medium">
-            <span className="text-base">←</span> <span className="hidden sm:inline">退出</span>
+            <ArrowLeftIcon size={16} /> <span className="hidden sm:inline">退出</span>
           </button>
           <span className="font-display font-semibold text-ink truncate">
             {currentLesson.meta.title}
@@ -174,27 +183,27 @@ const LessonPlayer: React.FC = () => {
 
       {/* 当前 block */}
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
-        <div className="max-w-3xl mx-auto">
-          {block && (
+        {block && (
+          <TeachingLayout block={block}>
             <BlockRenderer
               key={`${currentLesson.meta.id}-${currentBlockIndex}`}
               block={block}
               onBlockComplete={handleBlockComplete}
             />
-          )}
-        </div>
+          </TeachingLayout>
+        )}
       </main>
 
       {/* 底栏 */}
-      <footer className="sticky bottom-0 z-20 bg-paper/80 backdrop-blur-md border-t border-paper-line">
+      <footer className="sticky bottom-0 z-20 bg-paper/72 backdrop-blur-md border-t border-paper-line">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <button onClick={prevBlock} disabled={isFirst} className="btn-ghost">
-            <span>←</span> <span className="hidden sm:inline">上一步</span>
+            <ArrowLeftIcon size={16} /> <span className="hidden sm:inline">上一步</span>
           </button>
 
           {canAdvance ? (
             <button onClick={handleNext} className="btn-primary animate-pop">
-              {isLast ? '完成本课 ✓' : <>继续 <span>→</span></>}
+              {isLast ? <><CheckIcon size={16} /> 完成本课</> : <>继续 <ArrowRightIcon size={16} /></>}
             </button>
           ) : (
             <div className="flex items-center gap-3">

@@ -16,6 +16,9 @@ import {
   House,
   ArrowClockwise,
   XCircle,
+  Warning,
+  Hammer,
+  Info,
 } from '@phosphor-icons/react'
 
 type IconProps = { size?: number; className?: string }
@@ -116,4 +119,20 @@ export const HomeIcon: React.FC<IconProps> = ({ size = 20, className }) => (
 
 export const ResetIcon: React.FC<IconProps> = ({ size = 16, className }) => (
   <ArrowClockwise size={size} className={className} weight="bold" />
+)
+
+export const WarningIcon: React.FC<IconProps> = ({ size = 20, className }) => (
+  <Warning size={size} className={className} weight="fill" />
+)
+
+export const XCircleIcon: React.FC<IconProps> = ({ size = 20, className }) => (
+  <XCircle size={size} className={className} weight="regular" />
+)
+
+export const HammerIcon: React.FC<IconProps> = ({ size = 24, className }) => (
+  <Hammer size={size} className={className} weight="fill" />
+)
+
+export const InfoIcon: React.FC<IconProps> = ({ size = 20, className }) => (
+  <Info size={size} className={className} weight="fill" />
 )

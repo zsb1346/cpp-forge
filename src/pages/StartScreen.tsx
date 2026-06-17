@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
+import LearningHubPreview from '../components/LearningHubPreview'
+import SubjectSwitcher from '../components/SubjectSwitcher'
+import { ArrowRightIcon } from '../components/icons'
 
 const StartScreen: React.FC = () => {
   const setScreen = useStore(s => s.setScreen)
   const progress = useStore(s => s.progress)
   const courses = useStore(s => s.courses)
+  const selectedSubject = useStore(s => s.selectedSubject)
+  const setSelectedSubject = useStore(s => s.setSelectedSubject)
   const resumeLesson = useStore(s => s.resumeLesson)
   const completedCount = Object.keys(progress.completedLessons).length
   const [mounted, setMounted] = useState(false)
@@ -26,7 +31,7 @@ const StartScreen: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen forge-glow flex flex-col relative overflow-hidden">
+    <div className="min-h-screen forge-glow atelier-shell flex flex-col relative overflow-hidden">
       {/* 漂浮的代码符号装饰 */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden>
         {['{', '}', ';', '()', '<>', '&', '*', '::'].map((s, i) => (
@@ -57,10 +62,11 @@ const StartScreen: React.FC = () => {
       {/* 主体 */}
       <main className="relative z-10 flex-1 flex flex-col justify-center px-7 sm:px-10 max-w-5xl mx-auto w-full pb-16">
         {/* 角标 */}
-        <p className={`text-xs font-bold uppercase tracking-[0.3em] text-ember mb-5
+        <div className={`inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-ember mb-5
           ${mounted ? 'animate-slide-in' : 'opacity-0'}`}>
-          从零锻造 · 蓝图玩家专属
-        </p>
+          <span className="w-9 h-px bg-ember/50" />
+          <span>从零锻造 · 蓝图玩家专属</span>
+        </div>
 
         {/* 巨型衬线标题 */}
         <h1 className="title-serif font-medium leading-[0.95] text-ink mb-7
@@ -72,17 +78,21 @@ const StartScreen: React.FC = () => {
         </h1>
 
         {/* 副文案 */}
-        <p className={`text-ink-soft text-lg sm:text-xl max-w-xl leading-relaxed mb-10
+        <p className={`text-ink-soft text-lg sm:text-xl max-w-2xl leading-relaxed mb-10
           ${mounted ? 'animate-rise delay-3' : 'opacity-0'}`}>
           你已经懂逻辑、懂节点、懂事件。现在只差把它写成文字。
           这里不灌概念，而是像导师一样，一小步一小步带你敲到会为止。
         </p>
 
+        <div className={`max-w-2xl mb-6 ${mounted ? 'animate-rise delay-4' : 'opacity-0'}`}>
+          <SubjectSwitcher value={selectedSubject} onChange={setSelectedSubject} courses={courses} />
+        </div>
+
         {/* CTA */}
         <div className={`flex flex-wrap items-center gap-4 ${resumeCourse ? 'mb-8' : 'mb-16'} ${mounted ? 'animate-rise delay-4' : 'opacity-0'}`}>
           <button onClick={() => setScreen('level-select')} className="btn-primary text-base px-8 py-4">
             {completedCount > 0 ? '继续锻造' : '开始第一课'}
-            <span className="text-lg">→</span>
+            <ArrowRightIcon size={18} />
           </button>
           {completedCount > 0 && (
             <span className="text-sm text-ink-faint">
@@ -106,10 +116,12 @@ const StartScreen: React.FC = () => {
               onClick={resumeLesson}
               className="btn-primary text-sm px-5 py-2.5 shrink-0"
             >
-              继续<span className="text-base ml-1">→</span>
+              继续<ArrowRightIcon size={16} />
             </button>
           </div>
         )}
+
+        <LearningHubPreview courses={courses} selectedSubject={selectedSubject} onOpenMainPath={() => setScreen('level-select')} />
 
         {/* 四步方法（编辑感横排） */}
         <div className={`grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-x-8 sm:gap-y-6 border-t border-paper-line pt-8

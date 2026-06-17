@@ -65,6 +65,10 @@ export default {
         'spark':      'spark 0.6s ease-out forwards',
         'underline':  'underline 0.5s cubic-bezier(0.22,1,0.36,1) forwards',
         'float':      'float 6s ease-in-out infinite',
+        // animated-timeline 专用动画
+        'pulse-ring': 'pulseRing 2s ease-in-out infinite',
+        'glow':       'glow 2s ease-in-out infinite',
+        'arrow-flow': 'arrowFlow 0.8s linear infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -97,6 +101,18 @@ export default {
         float: {
           '0%,100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        pulseRing: {
+          '0%,100%': { transform: 'scale(1)', opacity: '0.6' },
+          '50%': { transform: 'scale(1.04)', opacity: '1' },
+        },
+        glow: {
+          '0%,100%': { boxShadow: '0 0 6px 1px rgba(210,120,70,0.15)' },
+          '50%': { boxShadow: '0 0 14px 4px rgba(210,120,70,0.3)' },
+        },
+        arrowFlow: {
+          '0%': { strokeDashoffset: '0' },
+          '100%': { strokeDashoffset: '-14' },
         },
       },
     },

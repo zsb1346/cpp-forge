@@ -5,3 +5,13 @@ dist/
 
 # 备份文件（含大量大文件）
 备份/
+
+# 构建/运行产物
+*.rar
+*.lnk
+*.html
+
+# AI 代理工具
+AI-AGent/
+.playwright-mcp/
+public/browsercc/

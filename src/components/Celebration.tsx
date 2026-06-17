@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useStore } from '../store/useStore'
+import { StarIcon, ArrowRightIcon, HammerIcon } from './icons'
 
 /** 完成一课时的庆祝弹层 —— 锻造完成、火花迸发 */
 const Celebration: React.FC = () => {
@@ -36,8 +37,8 @@ const Celebration: React.FC = () => {
 
         {/* 印章式徽记 */}
         <div className="mx-auto mb-6 w-20 h-20 rounded-3xl bg-ember shadow-ember
-          flex items-center justify-center text-4xl">
-          🔨
+          flex items-center justify-center">
+          <HammerIcon size={36} className="text-paper-raised" />
         </div>
 
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-ember mb-2">锻造完成</p>
@@ -46,8 +47,10 @@ const Celebration: React.FC = () => {
         </h2>
         <div className="flex justify-center gap-1.5 mb-6">
           {[0, 1, 2].map(i => (
-            <span key={i} className="text-2xl text-gold animate-pop"
-              style={{ animationDelay: `${300 + i * 120}ms` }}>★</span>
+            <span key={i} className="animate-pop"
+              style={{ animationDelay: `${300 + i * 120}ms` }}>
+              <StarIcon size={28} filled className="text-gold" />
+            </span>
           ))}
         </div>
 
@@ -65,7 +68,7 @@ const Celebration: React.FC = () => {
           {celebration.nextTitle && (
             <button onClick={goToNext}
               className="btn-primary flex-1 justify-center">
-              下一课：{celebration.nextTitle} →
+              下一课：{celebration.nextTitle} <ArrowRightIcon size={16} />
             </button>
           )}
         </div>
